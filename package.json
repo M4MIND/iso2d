@@ -1,0 +1,26 @@
+{
+  "name": "iso2d",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx webpack -w",
+    "server": "webpack-dev-server --hot --inline"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "6.26.3",
+    "babel-loader": "^6.1.0",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-polyfill": "^6.3.14",
+    "webpack": "^1.15.0",
+    "webpack-dev-server": "^1.8.0",
+    "webpack-stream": "6.1.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
+  }
+}
