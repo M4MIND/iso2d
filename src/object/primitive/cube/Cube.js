@@ -10,8 +10,26 @@ class Cube extends Primitive {
             new Path([
                 this.position,
                 new Point(this.position.x + this.dx, this.position.y, this.position.z),
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z),
+                new Point(this.position.x, this.position.y + this.dy, this.position.z)
+            ])
+        )
+
+        this.addPath(
+            new Path([
+                this.position,
+                new Point(this.position.x + this.dx, this.position.y, this.position.z),
                 new Point(this.position.x + this.dx, this.position.y, this.position.z + this.dz),
                 new Point(this.position.x, this.position.y, this.position.z + this.dz)
+            ])
+        )
+
+        this.addPath(
+            new Path([
+                new Point(this.position.x, this.position.y + this.dy, this.position.z),
+                new Point(this.position.x, this.position.y + this.dy, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z)
             ])
         )
 
@@ -23,14 +41,23 @@ class Cube extends Primitive {
                 new Point(this.position.x, this.position.y + this.dy, this.position.z)
             ])
         )
-        
+
         this.addPath(
             new Path([
-                this.position,
-                new Point(this.position.x + this.dx, this.position.y, this.position.z),
                 new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z),
-                new Point(this.position.x, this.position.y + this.dy, this.position.z)
-            ]).translate(0, 0, this.dz)
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y, this.position.z)
+            ])
+        )
+
+        this.addPath(
+            new Path([
+                new Point(this.position.x, this.position.y, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y, this.position.z + this.dz),
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z + this.dz),
+                new Point(this.position.x, this.position.y + this.dy, this.position.z + this.dz)
+            ])
         )
     }
 }

@@ -8,7 +8,6 @@ class Point {
     }
 
     translate(dx, dy, dz) {
-
         this.x = this.x + dx;
         this.y = this.y + dy;
         this.z = this.z + dz;

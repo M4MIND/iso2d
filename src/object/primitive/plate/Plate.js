@@ -10,8 +10,8 @@ class Plate extends Primitive {
             new Path([
                 this.position,
                 new Point(this.position.x + this.dx, this.position.y, this.position.z),
-                new Point(this.position.x + this.dx, this.position.y, this.position.z + this.dz),
-                new Point(this.position.x, this.position.y, this.position.z + this.dz)
+                new Point(this.position.x + this.dx, this.position.y + this.dy, this.position.z),
+                new Point(this.position.x, this.position.y + this.dy, this.position.z)
             ])
         )
     }

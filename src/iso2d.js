@@ -9,10 +9,10 @@ class iso2d {
     }
 
     addPrimitive(primitive) {
-        let v1 = Vector.fromTwoPoints(primitive.paths[0].points[1], primitive.paths[0].points[0])
+        /* let v1 = Vector.fromTwoPoints(primitive.paths[0].points[1], primitive.paths[0].points[0])
         let v2 = Vector.fromTwoPoints(primitive.paths[0].points[2], primitive.paths[0].points[1])
 
-        var normal = Vector.crossProduct(v1, v2).normalize();
+        var normal = Vector.crossProduct(v1, v2).normalize(); */
 
         this.canvas.drawPrimitive(primitive);
     }

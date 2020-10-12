@@ -13,9 +13,9 @@ class Path {
         return this;
     }
 
-    translate(dx, dy, dz) {
+    translate(dx, dy, dz) {        
         this.points = this.points.map(item => item.translate(dx, dy, dz));
-
+        
         return this;
     }
 
