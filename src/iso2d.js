@@ -1,25 +1,33 @@
-const Vector = require("./coordinate/Vector");
-const Canvas = require("./system/canvas/Canvas");
-const Resource = require("./system/resource/Resource");
+const Camera = require("./classes/Camera");
+const Canvas = require("./classes/Canvas");
+const Path = require("./classes/Path");
+const Point2 = require("./classes/Point2");
+const Point3 = require("./classes/Point3");
+const Vector2 = require("./classes/Vector2");
+const Vector3 = require("./classes/Vector3");
+const PrimitiveType = require("./primitiveType/PrimitiveType");
 
 class iso2d {
-    constructor(canvas) {
-        this.canvas = new Canvas(canvas);
-        this.resource = new Resource();
-    }
-
-    addPrimitive(primitive) {
-        /* let v1 = Vector.fromTwoPoints(primitive.paths[0].points[1], primitive.paths[0].points[0])
-        let v2 = Vector.fromTwoPoints(primitive.paths[0].points[2], primitive.paths[0].points[1])
-
-        var normal = Vector.crossProduct(v1, v2).normalize(); */
-
-        this.canvas.drawPrimitive(primitive);
+    /**
+     * @param canvas {Canvas} 
+     * @param property {object}
+     */
+    constructor(canvas, property) {
+        this.property = Object.assign({}, property);
+        this.canvas = canvas;
     }
 
     run() {
-        return Promise.all([this.resource.load]);
     }
 }
+
+iso2d.Point2 = Point2;
+iso2d.Point3 = Point3;
+iso2d.Vector2 = Vector2;
+iso2d.Vector3 = Vector3;
+iso2d.Path = Path;
+iso2d.Canvas = Canvas;
+iso2d.PrimitiveType = PrimitiveType
+iso2d.Camera = Camera;
 
 module.exports = iso2d;
