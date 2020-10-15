@@ -11,7 +11,7 @@ class Cube {
      * @param {*} dy 
      * @param {*} dz 
      */
-    constructor(point, dx, dy, dz) {
+    constructor(point, dx, dy, dz, color) {
         this.triangles = [new Triangle(
             new Vertex(point.x, point.y, point.z),
             new Vertex(point.x, point.y, point.z + dz),

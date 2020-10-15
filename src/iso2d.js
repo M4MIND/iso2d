@@ -10,10 +10,12 @@ const PrimitiveType = require("./primitiveType/PrimitiveType");
 class iso2d {
     /**
      * @param canvas {Canvas} 
+     * @param camera {Camera}
      * @param property {object}
      */
-    constructor(canvas, property) {
+    constructor(canvas, camera, property) {
         this.property = Object.assign({}, property);
+        this.camera = camera;
         this.canvas = canvas;
     }
 

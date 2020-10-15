@@ -1,1 +1,1 @@
-var core = new iso2d(new iso2d.Canvas(document.getElementById('_ID')));
+var core = new iso2d(new iso2d.Canvas(document.getElementById('_ID')), new iso2d.Camera());

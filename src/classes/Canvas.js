@@ -27,27 +27,42 @@ class Canvas {
         this.canvas.width = this.property.width;
         this.canvas.height = this.property.height;
 
-        this.fillStyle = [
-            [141, 108, 115, 255], [141, 108, 115, 255],
-            [53, 68, 101, 255], [53, 68, 101, 255],
-            [141, 108, 115, 255], [141, 108, 115, 255],
-            [53, 68, 101, 255], [53, 68, 101, 255],
-            [208, 163, 234, 255], [208, 163, 234, 255],
-            [208, 163, 234, 255], [208, 163, 234, 255],
-        ];
+        this.fillStyle = [];
+
+        for (var i = 0; i < 12; i++) {
+            this.fillStyle[i] = [];
+            for (var c = 0; c < 3; c++) {
+                this.fillStyle[i].push(randomInteger(0, 255))
+            }
+            this.fillStyle[i].push(255);
+        }
 
         this.oldDate = Date.now();
         this.diff = 0;
 
         this.obj = [
-            new Cube(new Point3(-32, -32, -32), 64, 64, 64)
         ];
 
-        for (var i = 0; i < 1000; i++) {
-            var size = randomInteger(1, 32);
-            this.obj.push(new Cube(new Point3(randomInteger(-this.property.width / 2, this.property.width / 2), randomInteger(-1000, 1000), randomInteger(-this.property.height / 2, this.property.height / 2)), size, size, size))
-        }
+        this.angleX = Math.PI / 0.1;
+        this.angleY = Math.PI / 3;
+        this.angleZ = Math.PI / 3;
+        /* 
+                for (var x = -8; x < 8; x++) {
+                    for (var y = -8; y < 8; y++) {
+                        this.obj.push(new Cube(new Point3(x * 32, y * 32, x + y * 16), 32, 32, 32))
+                    }
+                } */
 
+        this.obj.push(
+            new Cube(new Point3(-64, -64, 64), 64, 64, 64),
+            new Cube(new Point3(0, 0, 0), 64, 64, 64),
+        )
+
+        /*  for (var i = 0; i < 128; i++) {
+             var size = 32
+             this.obj.push(new Cube(new Point3(randomInteger(-this.property.width / 2, this.property.width / 2), randomInteger(-1000, 1000), randomInteger(-this.property.height / 2, this.property.height / 2)), size, size, size))
+         }
+  */
         this.angle = 0;
 
         requestAnimationFrame(this.update.bind(this));
@@ -58,23 +73,36 @@ class Canvas {
 
         this.ctx.save();
 
-        this.angle += this.diff * 0.00002;
 
-        this.angle %= 2 * Math.PI;
+        this.angleX += this.diff * 0.0002;
+        this.angleY += this.diff * 0.0002;
+        this.angleZ += this.diff * 0.0006;
 
         let headingMatrix = new Matrix3([
-            [Math.cos(this.angle), 0, - Math.sin(this.angle)],
+            [Math.cos(this.angleX), 0, - Math.sin(this.angleX)],
             [0, 1, 0],
-            [Math.sin(this.angle), 0, Math.cos(this.angle)]
+            [Math.sin(this.angleX), 0, Math.cos(this.angleX)]
         ]);
 
         let pitchMatrix = new Matrix3([
             [1, 0, 0],
-            [0, Math.cos(this.angle), Math.sin(this.angle)],
-            [0, -Math.sin(this.angle), Math.cos(this.angle)]
+            [0, Math.cos(this.angleY), Math.sin(this.angleY)],
+            [0, -Math.sin(this.angleY), Math.cos(this.angleY)]
         ])
 
-        let matrix = Matrix3.multiple(headingMatrix, pitchMatrix);
+        let def = new Matrix3([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+        ])
+
+        let Z = new Matrix3([
+            [Math.cos(this.angleZ), - Math.sin(this.angleZ), 0],
+            [Math.sin(this.angleZ), Math.cos(this.angleZ), 0],
+            [0, 1, 0],
+        ])
+
+        let matrix = Matrix3.multiple(pitchMatrix, headingMatrix);
 
         let image = new Bitmap(this.ctx.createImageData(this.property.width, this.property.height));
         let zBuffer = new Array(this.property.width * this.property.height);

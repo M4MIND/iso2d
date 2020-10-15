@@ -1,9 +1,8 @@
 const Cube = require("./Cube");
 
 class PrimitiveType {
-    cube() {
-        return new Cube();
-    }
 }
+
+PrimitiveType.Cube = Cube;
 
 module.exports = PrimitiveType;
