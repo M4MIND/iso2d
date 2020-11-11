@@ -1,17 +1,20 @@
-const { Vector3, Matrix4 } = require("../Mathf/Mathf");
+const Mathf = require("../Mathf/Mathf");
+const { Vector3, Matrix4, Quaternion } = require("../Mathf/Mathf");
 const Canvas2d = require("../Render/Canvas2d");
 const Scene = require("../Scene/Scene");
 
 class Camera {
     constructor() {
-        this._position = new Vector3(0, 0, 0);
-        this._forward = new Vector3(0, 0, 1);
-        this._up = new Vector3(0, 1, 0);
-        this._right = new Vector3(1, 0, 0);
+        this._position = new Vector3(0, 0, 0, 1);
+        this._forward = new Vector3(0, 0, 1, 1);
+        this._up = new Vector3(0, 1, 0, 1);
+        this._right = new Vector3(1, 0, 0, 1);
         this._near = 0.1;
         this._far = 100;
-        this._h_fov = Math.PI / 3;
-        this._v_fov = this._h_fov * (1000 / 1000);
+        this._h_fov = Mathf.Angle.degreesToRadians(120);
+        this._v_fov = this._h_fov * (document.body.clientHeight / document.body.clientWidth);
+
+        this.rotation = Quaternion.fromVector(new Vector3(0, 0, 0), 0);
 
         this._scene = null;
         this._render = null;
@@ -45,7 +48,7 @@ class Camera {
     }
 
     getMatrix() {
-        return this.positionMatrix().multiply(this.rotationMatrix());
+        return this.rotationMatrix().multiply(this.positionMatrix());
     }
 
     positionMatrix() {
@@ -58,6 +61,8 @@ class Camera {
     }
 
     rotationMatrix() {
+        return this.rotation.toMatrix4();
+
         return new Matrix4([
             [this._right.x, this._up.x, this._forward.x, 0],
             [this._right.y, this._up.y, this._forward.y, 0],

@@ -1,9 +1,9 @@
 class Vector3 {
-    constructor(x, y, z) {
+    constructor(x, y, z, w) {
         this._x = x || 0.0;
         this._y = y || 0.0;
         this._z = z || 0.0;
-        this._w = 0;
+        this._w = w || 0.0;
     }
 
     /**

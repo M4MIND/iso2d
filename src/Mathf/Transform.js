@@ -40,6 +40,7 @@ class Transform {
                 [0, 0, 0, 1]
             ]),
             this.rotation.toMatrix4(),
+            
             new Matrix4([
                 [this.scale.x, 0, 0, 0],
                 [0, this.scale.y, 0, 0],

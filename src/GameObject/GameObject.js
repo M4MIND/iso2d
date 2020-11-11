@@ -6,6 +6,7 @@ class GameObject {
         this.tag = null;
         this.components = new Map();
         this.transform = new Transform();
+        this.color = [0, 0, 0, 255]
     }
 
     /**
@@ -33,7 +34,7 @@ class GameObject {
     }
 
     onUpdate() {
-        
+
     }
 
     onDraw(render) {

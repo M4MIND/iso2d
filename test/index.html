@@ -22,9 +22,12 @@
     </style>
 </head>
 
-<body></body>
+<body style="background-color: #000;"></body>
 <script src="http://localhost:8080/webpack-dev-server.js"></script>
 <script src="iso2d.js"></script>
 <script src="test.js"></script>
-
+<div id="info" style="position: absolute; right: 0; top: 0; color: #FFF; padding: 20px;">
+    <div><em>Camera position:</em> x:<span id="x">0</span> y:<span id="y">0</span> z:<span id="z">0</span></div>
+    <div><em>Camera rotation:</em><span id="rX">0</span> y:<span id="rY">0</span> z:<span id="rZ">0</span></div>
+</div>
 </html>

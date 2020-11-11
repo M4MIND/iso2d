@@ -1,11 +1,11 @@
 const Matrix4 = require("./Matrix4");
 
 class Vertex {
-    constructor(x, y, z) {
+    constructor(x, y, z, w) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.w = 1;
+        this.w = w || 1;
     }
 
     /** 
