@@ -1,24 +1,60 @@
-const Vector = require("./coordinate/Vector");
-const Canvas = require("./system/canvas/Canvas");
-const Resource = require("./system/resource/Resource");
+const Behaviour = require("./Behaviour/Behaviour");
+const Camera = require("./Camera/Camera");
+const Scene = require("./Scene/Scene");
 
 class iso2d {
-    constructor(canvas) {
-        this.canvas = new Canvas(canvas);
-        this.resource = new Resource();
+    constructor(camera, scene) {
+        this._camera = camera || new Camera();
+        this._scene = scene || new Scene();
+        this._behaviours = [];
     }
 
-    addPrimitive(primitive) {
-        /* let v1 = Vector.fromTwoPoints(primitive.paths[0].points[1], primitive.paths[0].points[0])
-        let v2 = Vector.fromTwoPoints(primitive.paths[0].points[2], primitive.paths[0].points[1])
-
-        var normal = Vector.crossProduct(v1, v2).normalize(); */
-
-        this.canvas.drawPrimitive(primitive);
+    /** @returns {Camera} */
+    get camera() {
+        return this._camera;
     }
 
-    run() {
-        return Promise.all([this.resource.load]);
+    /** @param {Camera} camera */
+    set camera(camera) {
+        this._camera = camera;
+    }
+
+    /** @returns {Scene} */
+    get scene() {
+        return this._scene;
+    }
+
+    /** @param {Scene} scene */
+    set scene(scene) {
+        this._scene = scene;
+    }
+
+    /** @param {Behaviour} behaviour */
+    addBehaviour(behaviour) {
+        if (behaviour.__proto__.name !== "Behaviour") {
+            return null;
+        }
+
+        behaviour = new behaviour(this._scene);
+
+        this._behaviours.push(behaviour);
+    }
+
+    start() {
+        for (let bh of this._behaviours) {
+            bh.start();
+        }
+
+        window.requestAnimationFrame(() => {
+            this.tick();
+        });
+    }
+
+    tick() {
+
+        window.requestAnimationFrame(() => {
+            this.tick();
+        })
     }
 }
 

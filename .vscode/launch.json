@@ -10,21 +10,6 @@
             "type": "pwa-chrome",
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}"
-        },
-        {
-            "name": "Attach to Edge",
-            "port": 9222,
-            "request": "attach",
-            "type": "pwa-msedge",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "type": "edge",
-            "request": "launch",
-            "version": "canary",
-            "name": "Launch Microsoft Edge and open the Edge DevTools",
-            "url": "http://localhost:8080/",
-            "webRoot": "${workspaceFolder}",
         }
     ]
 }

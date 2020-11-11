@@ -14,10 +14,15 @@ module.exports = {
   },
 
   module: {
-    loaders: [
+    rules: [
       {
-        test: path.resolve(__dirname, 'src'), //Regular expression 
-        loader: "babel-loader"
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
+        options: {
+          presets: ['@babel/preset-env'],
+          plugins: ['@babel/plugin-proposal-class-properties']
+        }
       }
     ]
   },
