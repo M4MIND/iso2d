@@ -16,9 +16,11 @@ class Bitmap {
      * @param color {Array};
      */
     draw(x, y, color) {
+        x = parseInt(x);
+        y = parseInt(y);
+
         var i = (x + y * this._w) * 4
-
-
+        
         this.bitmap.data[i + 0] = color[0]
         this.bitmap.data[i + 1] = color[1]
         this.bitmap.data[i + 2] = color[2]

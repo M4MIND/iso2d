@@ -30,6 +30,19 @@ class Vertex {
             this.w / this.w
         )
     }
+
+    pluseVertex(v) {
+        return new Vertex(this.x + v.x, this.y + v.y, this.z + v.z);
+    }
+
+    minusVertex(v) {
+        return new Vertex(this.x - v.x, this.y - v.y, this.z - v.z);
+    }
+
+    multiplyNumber(n) {
+        return new Vertex(this.x * n, this.y * n, this.z * n);
+    }
+
 }
 
 module.exports = Vertex;

@@ -17,10 +17,10 @@ class ScreenMatrix {
          */
 
         return new Matrix4([
-            [1000, 0, 0, 0],
-            [0, -1000, 0, 0],
+            [document.body.clientWidth / 2, 0, 0, document.body.clientWidth / 2],
+            [0, document.body.clientHeight / 2, 0, document.body.clientHeight / 2],
             [0, 0, 1, 0],
-            [1000, 1000, 0, 1],
+            [0, 0, 0, 1],
         ])
     }
 }
