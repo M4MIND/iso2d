@@ -90,7 +90,9 @@ class Quaternion {
      */
     static fromVector(v, a) {
         v = v.normalize();
-        return new Quaternion(Math.sin(a / 2) * v.x, Math.sin(a / 2) * v.y, Math.sin(a / 2) * v.z, Math.cos(a / 2))
+        let sin = Math.sin(a / 2);
+        let cos = Math.cos(a / 2);
+        return new Quaternion(sin * v.x, sin * v.y, sin * v.z, cos)
     }
 }
 

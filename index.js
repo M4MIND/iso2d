@@ -2,10 +2,7 @@ const Camera = require("./src/Camera/Camera");
 const Projection = require("./src/Camera/Projection");
 const ScreenMatrix = require("./src/Camera/ScreenMatrix");
 const Mesh = require("./src/Components/Mesh/Mesh");
-const Cone = require("./src/GameObject/Primitive/Cone");
 const Cube = require("./src/GameObject/Primitive/Cube");
-const Cylinder = require("./src/GameObject/Primitive/Cylinder");
-const Plane = require("./src/GameObject/Primitive/Plane");
 const Sphere = require("./src/GameObject/Primitive/Sphere");
 const Suzanne = require("./src/GameObject/Primitive/Suzanne");
 const iso2d = require("./src/iso2d");
@@ -14,6 +11,7 @@ const { Vector3 } = require("./src/Mathf/Mathf");
 const Quaternion = require("./src/Mathf/Quaternion");
 const Vertex = require("./src/Mathf/Vertex");
 const Bitmap = require("./src/Render/Bitmap");
+
 
 let game = new iso2d();
 
@@ -24,7 +22,7 @@ let cam = new Camera();
 let projection = new Projection(cam);
 let screenMatrix = new ScreenMatrix();
 
-cam.position = new Vector3(0, 0, 23)
+cam.position = new Vector3(0, -1, 40)
 cam.rotation = Quaternion.fromVector(new Vector3(1, 0, 0), Mathf.Angle.degreesToRadians(0))
 
 let screen = {
@@ -36,45 +34,46 @@ canvas.width = screen.x;
 canvas.height = screen.y;
 document.body.appendChild(canvas);
 
-/* for (var x = -16; x <16; x++) {
-    for (var y = -1; y < 0; y++) {
-        for (z = -16; z < 16; z++) {
-            let temp = new Cube();
+let suzanne = new Suzanne();
 
-            temp.transform.position = new Vector3(x * 2, y, z * 2);
-            temp.transform.scale = new Vector3(1, 1, 1);
-            temp.color = [255, 255, 255, 255];
-
-            game.scene.add(temp);
-        }
-    }
-} */
-let suzanne = new Cube();
 suzanne.transform.position = new Vector3(0, 0, -2);
 suzanne.transform.scale = new Vector3(1, 1, 1);
 suzanne.color = [255, 255, 255, 255]
-game.scene.add(suzanne)
 
+let cube = new Cube();
+cube.transform.position = new Vector3(1, 3, 0);
+cube.transform.scale = new Vector3(1, 1, 1);
+cube.color = [255, 255, 255, 255];
+
+let sphere = new Sphere();
+sphere.transform.position = new Vector3(-2, 3, 0);
+
+game.scene.add(suzanne);
+game.scene.add(cube);
+
+game.scene.add(sphere);
 
 let angle = 0;
 let angleCamX = 0;
 let angleCamY = 0;
 let angleCamZ = 0;
 
-document.addEventListener('keypress', (e) => {
+let light = new Vector3(0, 0, -1);
 
+
+document.addEventListener('keypress', (e) => {
     if (e.keyCode === 119) {
-        cam.position.y -= 1 * 1;
+        light.y -= 1 * 0.1;
     } if (e.keyCode === 115) {
-        cam.position.y += 1 * 1;
+        light.y += 1 * 0.1;
     } if (e.keyCode === 97) {
-        cam.position.x += 1 * 1;
+        light.x += 1 * 0.1;
     } if (e.keyCode === 100) {
-        cam.position.x -= 1 * 1;
+        light.x -= 1 * 0.1;
     } if (e.keyCode === 114) {
-        cam.position.z += 1 * 1;
+        light.z += 1 * 0.1;
     } if (e.keyCode === 102) {
-        cam.position.z -= 1 * 1;
+        light.z -= 1 * 0.1;
     }
 
     if (e.keyCode === 105) {
@@ -107,6 +106,7 @@ document.addEventListener('keypress', (e) => {
 
 let zBuffer = new Array(screen.x * screen.y);
 
+
 setInterval(function () {
     for (let i = 0; i < zBuffer.length; i++) {
         zBuffer[i] = Number.NEGATIVE_INFINITY;
@@ -123,6 +123,12 @@ setInterval(function () {
 
 
     let camM = cam.getMatrix();
+
+    let l = Math.sqrt(light.x * light.x + light.y * light.y + light.z * light.z);
+    light.x /= l;
+    light.y /= l;
+    light.z /= l;
+
 
     for (let gameObject of game.scene.all()) {
 
@@ -141,145 +147,109 @@ setInterval(function () {
 
             v1 = v1
                 .multiplyOnMatrix(gameObjectM)
-                .multiplyOnMatrix(camM)
-                .multiplyOnMatrix(projection)
-                .normal()
             v2 = v2
                 .multiplyOnMatrix(gameObjectM)
-                .multiplyOnMatrix(camM)
-                .multiplyOnMatrix(projection)
-                .normal()
             v3 = v3
                 .multiplyOnMatrix(gameObjectM)
-                .multiplyOnMatrix(camM)
-                .multiplyOnMatrix(projection)
-                .normal()
 
-            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < 0) {
-                continue;
+
+            let normal = new Vector3();
+            let line1 = new Vector3();
+            let line2 = new Vector3();
+            let l = 0;
+
+            line1.x = v2.x - v1.x
+            line1.y = v2.y - v1.y
+            line1.z = v2.z - v1.z
+
+            line2.x = v3.x - v1.x
+            line2.y = v3.y - v1.y
+            line2.z = v3.z - v1.z
+
+            normal.x = line1.y * line2.z - line1.z * line2.y;
+            normal.y = line1.z * line2.x - line1.x * line2.z;
+            normal.z = line1.x * line2.y - line1.y * line2.x;
+
+            l = Math.sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+
+            normal.x /= l;
+            normal.y /= l;
+            normal.z /= l;
+
+            if (normal.z < 0) {
+                v1 = v1.multiplyOnMatrix(camM)
+                    .multiplyOnMatrix(projection)
+                    .normal()
+                v2 = v2.multiplyOnMatrix(camM)
+                    .multiplyOnMatrix(projection)
+                    .normal()
+                v3 = v3.multiplyOnMatrix(camM)
+                    .multiplyOnMatrix(projection)
+                    .normal()
+
+                if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < 0) {
+                    continue;
+                }
+                if (v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v3.z < 0) {
+                    continue;
+                }
+
+                if (v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < 0) {
+                    continue;
+                }
+
+
+
+                v1 = v1.multiplyOnMatrix(screenMatrix);
+                v2 = v2.multiplyOnMatrix(screenMatrix);
+                v3 = v3.multiplyOnMatrix(screenMatrix);
+
+                _triangle(v1, v2, v3, bitmap, gameObject.color, normal);
             }
-            if (v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v3.z < 0) {
-                continue;
-            }
-
-            if (v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < 0) {
-                continue;
-            }
-
-            v1 = v1.multiplyOnMatrix(screenMatrix);
-            v2 = v2.multiplyOnMatrix(screenMatrix);
-            v3 = v3.multiplyOnMatrix(screenMatrix);
-
-            /* bitmap.draw(parseInt(v1.x + screen.x / 2), parseInt(v1.y + screen.y / 2), gameObject.color);
-            bitmap.draw(parseInt(v2.x + screen.x / 2), parseInt(v2.y + screen.y / 2), gameObject.color);
-            bitmap.draw(parseInt(v3.x + screen.x / 2), parseInt(v3.y + screen.y / 2), gameObject.color); */
-
-            triangle(v1, v2, v3, bitmap, gameObject.color);
         }
     }
 
     ctx.putImageData(bitmap.bitmap, 0, 0);
-}, 1000 / 60)
+}, 1000 / 30)
 
+const _triangle = (v1, v2, v3, bitmap, color, normal) => {
+    let minX = Math.max(0, Math.ceil(Math.min(v1.x, Math.min(v2.x, v3.x))));
+    let maxX = Math.min(screen.x - 1, Math.floor(Math.max(v1.x, Math.max(v2.x, v3.x))));
+    let minY = Math.max(0, Math.ceil(Math.min(v1.y, Math.min(v2.y, v3.y))));
+    let maxY = Math.min(screen.y - 1, Math.floor(Math.max(v1.y, Math.max(v2.y, v3.y))));
 
+    let triangleArea = (v1.y - v3.y) * (v2.x - v3.x) + (v2.y - v3.y) * (v3.x - v1.x);
+    let dp = normal.x * light.x + normal.y * light.y + normal.z * light.z;
 
-/** 
- * @param {Vertex} t0 
- * @param {Vertex} t1 
- * @param {Vertex} t2 
- * */
-function triangle(t0, t1, t2, bitmap, color) {
+    for (let y = minY; y <= maxY; y++) {
+        for (let x = minX; x <= maxX; x++) {
+            let b1 = ((y - v3.y) * (v2.x - v3.x) + (v2.y - v3.y) * (v3.x - x)) / triangleArea;
+            let b2 = ((y - v1.y) * (v3.x - v1.x) + (v3.y - v1.y) * (v1.x - x)) / triangleArea;
+            let b3 = ((y - v2.y) * (v1.x - v2.x) + (v1.y - v2.y) * (v2.x - x)) / triangleArea;
 
-    let norm = new Vertex(
-        t0.y * t2.z - t0.z * t2.y, 
-        t0.z * t2.x - t0.x * t2.z, 
-        t0.x * t2.y - t0.y * t2.x
-    )
+            if (b1 >= 0 && b1 <= 1 && b2 >= 0 && b2 <= 1 && b3 >= 0 && b3 <= 1) {
+                let depth = b1 * v1.z + b2 * v2.z + b3 * v3.z;
+                let index = y * screen.x + x;
 
-    if (t0.y > t1.y) { [t0, t1] = [t1, t0] }
-    if (t0.y > t2.y) { [t0, t2] = [t2, t0] }
-    if (t1.y > t2.y) { [t1, t2] = [t2, t1] }
+                if (zBuffer[index] < depth) {
 
-    let total_height = t2.y - t0.y;
+                    let norm = new Vertex(
+                        v1.y * v3.z - v1.z * v3.y,
+                        v1.z * v3.x - v1.x * v3.z,
+                        v1.x * v3.y - v1.y * v3.x
+                    )
 
-    
-    let len = Math.sqrt(norm.x * norm.x + norm.y * norm.y + norm.z * norm.z);
+                    let cl = [];
 
-    norm.x /= len;
-    norm.y /= len;
-    norm.z /= len;
+                    cl[0] = color[0] * dp;
+                    cl[1] = color[1] * dp;
+                    cl[2] = color[2] * dp;
+                    cl[3] = color[3];
 
-    let sh = Math.abs(norm.y);
-
-    let cl = [];
-
-    cl[0] = color [0] * sh;
-    cl[1] = color [1] * sh;
-    cl[2] = color [2] * sh;
-    cl[3] = 255;
-
-
-    for (let i = 0; i < total_height; i++) {
-        let second_half = i > t1.y - t0.y || t1.y == t0.y;
-        let segment_height = second_half ? t2.y - t1.y : t1.y - t0.y;
-
-        let alpha = i / total_height;
-        let beta = (i - (second_half ? t1.y - t0.y : 0)) / segment_height;
-
-        let A = t0.pluseVertex(t2.minusVertex(t0).multiplyNumber(alpha));
-        let B = second_half ?
-            t1.pluseVertex(t2.minusVertex(t1).multiplyNumber(beta)):
-            t0.pluseVertex(t1.minusVertex(t0).multiplyNumber(beta));
-
-        if (A.x > B.x) { [A, B] = [B, A] }
-
-        for (let j = A.x; j <= B.x; j++) {
-
-            
-            bitmap.draw(j, t0.y + i, cl);
+                    zBuffer[index] = depth;
+                    bitmap.draw(x, y, cl);
+                }
+            }
         }
     }
-
-    /* drawLine(t0.x, t0.y, t1.x, t1.y, bitmap, color);
-    drawLine(t1.x, t1.y, t2.x, t2.y, bitmap, color);
-    drawLine(t2.x, t2.y, t0.x, t0.y, bitmap, color); */
-
-}
-
-function drawLine(x0, y0, x1, y1, bitmap, color) {
-    let steep = false;
-
-    if (Math.abs(x0 - x1) < Math.abs(y0 - y1)) {
-        [x0, y0] = [y0, x0];
-        [x1, y1] = [y1, x1];
-        steep = true;
-    }
-
-    if (x0 > x1) {
-        [x0, x1] = [x1, x0];
-        [y0, y1] = [y1, y0];
-    }
-
-    let dx = x1 - x0;
-    let dy = y1 - y0;
-
-    for (let x = x0; x <= x1; x++) {
-        let t = (x - x0) / parseFloat(x1 - x0);
-        let y = y0 * (1.0 - t) + y1 * t;
-
-        if (steep) {
-            bitmap.draw(y, x, color);
-        }
-        else {
-            bitmap.draw(x, y, color)
-        }
-    }
-
-    /* for (t = 0.0; t < 1; t += 0.01) {
-        let x = x0 * (1.0 - t) + x1 * t;
-        let y = y0 * (1.0 - t) + y1 * t;
-
-
-        bitmap.draw(parseInt(x + screen.x / 2), parseInt(y + screen.y / 2), color)
-    } */
 }
