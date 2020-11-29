@@ -3,16 +3,27 @@ const GameObject = require("../GameObject/GameObject");
 class Scene {
     constructor() {
         this.gameObjects = [];
+        this.lights = [];
     }
 
     /** @param {GameObject} gameObject */
-    add(gameObject) {
+    addGameObject(gameObject) {
         this.gameObjects.push(gameObject);
     }
 
+
     /** @returns {GameObject[]} */
-    all() {
+    allGameObjects() {
         return this.gameObjects;
+    }
+
+    
+    addLight(light) {
+        this.lights.push(light);
+    }
+
+    allLights() {
+        return this.lights;
     }
 }
 

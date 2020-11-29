@@ -1,3 +1,4 @@
+const RGBA = require("../Color/RGBA");
 const Component = require("../Components/Component");
 const Transform = require("../Mathf/Transform");
 
@@ -6,7 +7,8 @@ class GameObject {
         this.tag = null;
         this.components = new Map();
         this.transform = new Transform();
-        this.color = [255, 255, 255, 255]
+        this.shadow = true;
+        this.color = new RGBA(255, 255, 255, 255);
     }
 
     /**

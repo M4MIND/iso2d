@@ -29,6 +29,7 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, 'test'),
     overlay: true,
+    disableHostCheck: true
   },
   stats: {
     // Nice colored output

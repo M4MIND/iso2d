@@ -2,6 +2,7 @@ const Mathf = require("../Mathf/Mathf");
 const { Vector3, Matrix4, Quaternion } = require("../Mathf/Mathf");
 const Canvas2d = require("../Render/Canvas2d");
 const Scene = require("../Scene/Scene");
+const Projection = require("./Projection");
 
 class Camera {
     constructor() {
@@ -18,6 +19,8 @@ class Camera {
 
         this._scene = null;
         this._render = null;
+
+        this.projection = new Projection(this);
     }
 
     /** @param {Scene} scene */
@@ -62,13 +65,6 @@ class Camera {
 
     rotationMatrix() {
         return this.rotation.toMatrix4();
-
-        return new Matrix4([
-            [this._right.x, this._up.x, this._forward.x, 0],
-            [this._right.y, this._up.y, this._forward.y, 0],
-            [this._right.z, this._up.z, this._forward.z, 0],
-            [0, 0, 0, 1],
-        ])
     }
 
     Render() {

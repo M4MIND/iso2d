@@ -1,3 +1,4 @@
+const RGBA = require("../Color/RGBA");
 class Bitmap {
     /** @param {ImageData} imageData */
     constructor(imageData) {
@@ -12,19 +13,20 @@ class Bitmap {
 
     /**
      * 
-     * @param point {Point2} 
-     * @param color {Array};
+     * @param x {Number} 
+     * @param y {Number} 
+     * @param color {RGBA};
      */
-    draw(x, y, color) {
+    set(x, y, color) {
         x = parseInt(x);
         y = parseInt(y);
 
         var i = (x + y * this._w) * 4
         
-        this.bitmap.data[i + 0] = color[0]
-        this.bitmap.data[i + 1] = color[1]
-        this.bitmap.data[i + 2] = color[2]
-        this.bitmap.data[i + 3] = color[3]
+        this.bitmap.data[i + 0] = color.r;
+        this.bitmap.data[i + 1] = color.g;
+        this.bitmap.data[i + 2] = color.b;
+        this.bitmap.data[i + 3] = color.a;
     }
 
     get() {

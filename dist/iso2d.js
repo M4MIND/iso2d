@@ -55,31 +55,24 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 	const Camera = __webpack_require__(1);
-	const Projection = __webpack_require__(15);
-	const ScreenMatrix = __webpack_require__(16);
-	const Mesh = __webpack_require__(17);
-	const Cube = __webpack_require__(19);
-	const Sphere = __webpack_require__(22);
-	const Suzanne = __webpack_require__(23);
-	const iso2d = __webpack_require__(24);
-	const Mathf = __webpack_require__(2);
+	const ScreenMatrix = __webpack_require__(17);
+	const RGBA = __webpack_require__(11);
+	const Mesh = __webpack_require__(18);
+	const Sphere = __webpack_require__(19);
+	const Suzanne = __webpack_require__(20);
+	const iso2d = __webpack_require__(21);
 	const { Vector3 } = __webpack_require__(2);
-	const Quaternion = __webpack_require__(6);
 	const Vertex = __webpack_require__(7);
-	const Bitmap = __webpack_require__(13);
-	
+	const Bitmap = __webpack_require__(14);
 	
 	let game = new iso2d();
-	
 	
 	let canvas = document.createElement('canvas');
 	let ctx = canvas.getContext('2d');
 	let cam = new Camera();
-	let projection = new Projection(cam);
 	let screenMatrix = new ScreenMatrix();
 	
-	cam.position = new Vector3(0, -1, 40)
-	cam.rotation = Quaternion.fromVector(new Vector3(1, 0, 0), Mathf.Angle.degreesToRadians(0))
+	cam.position = new Vector3(0, 0, 60)
 	
 	let screen = {
 	    x: document.body.clientWidth,
@@ -90,75 +83,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	canvas.height = screen.y;
 	document.body.appendChild(canvas);
 	
-	let suzanne = new Suzanne();
+	let light = new Vector3(2, 2, 1);
+	let lightCache = new Vector3(0, 0, 0);
+	let lightPoint = new Sphere();
 	
-	suzanne.transform.position = new Vector3(0, 0, -2);
-	suzanne.transform.scale = new Vector3(1, 1, 1);
-	suzanne.color = [255, 255, 255, 255]
+	lightPoint.transform.scale = new Vector3(0.05, 0.05, 0.05)
+	lightPoint.transform.position = light;
 	
-	let cube = new Cube();
-	cube.transform.position = new Vector3(1, 3, 0);
-	cube.transform.scale = new Vector3(1, 1, 1);
-	cube.color = [255, 255, 255, 255];
-	
-	let sphere = new Sphere();
-	sphere.transform.position = new Vector3(-2, 3, 0);
-	
-	game.scene.add(suzanne);
-	game.scene.add(cube);
-	
-	game.scene.add(sphere);
-	
-	let angle = 0;
-	let angleCamX = 0;
-	let angleCamY = 0;
-	let angleCamZ = 0;
-	
-	let light = new Vector3(0, 0, -1);
-	
-	
-	document.addEventListener('keypress', (e) => {
-	    if (e.keyCode === 119) {
-	        light.y -= 1 * 0.1;
-	    } if (e.keyCode === 115) {
-	        light.y += 1 * 0.1;
-	    } if (e.keyCode === 97) {
-	        light.x += 1 * 0.1;
-	    } if (e.keyCode === 100) {
-	        light.x -= 1 * 0.1;
-	    } if (e.keyCode === 114) {
-	        light.z += 1 * 0.1;
-	    } if (e.keyCode === 102) {
-	        light.z -= 1 * 0.1;
-	    }
-	
-	    if (e.keyCode === 105) {
-	        angleCamX += 1;
-	        cam.rotation = Quaternion.fromVector(new Vector3(1, 0, 0), Mathf.Angle.degreesToRadians(angleCamX));
-	    }
-	
-	    if (e.keyCode === 107) {
-	        angleCamX -= 1;
-	        cam.rotation = Quaternion.fromVector(new Vector3(1, 0, 0), Mathf.Angle.degreesToRadians(angleCamX));
-	    }
-	
-	    if (e.keyCode == 106) {
-	        angleCamY += 1;
-	        cam.rotation = Quaternion.fromVector(new Vector3(0, 1, 0), Mathf.Angle.degreesToRadians(angleCamY));
-	    }
-	
-	    if (e.keyCode === 108) {
-	        angleCamY -= 1;
-	        cam.rotation = Quaternion.fromVector(new Vector3(0, 1, 0), Mathf.Angle.degreesToRadians(angleCamY));
-	    }
-	
-	    if (e.keyCode === 112) {
-	        angleCamZ -= 1;
-	        cam.rotation = Quaternion.fromVector(new Vector3(0, 0, 1), Mathf.Angle.degreesToRadians(angleCamZ));
-	    }
-	
-	
-	})
+	game.scene.addGameObject(lightPoint);
+	game.scene.addGameObject(new Suzanne)
 	
 	let zBuffer = new Array(screen.x * screen.y);
 	
@@ -169,26 +102,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    let bitmap = new Bitmap(ctx.createImageData(screen.x, screen.y))
-	    angle += 1;
-	
-	    if (angle >= 360) {
-	        angle = 0;
-	    }
 	
 	    ctx.clearRect(0, 0, canvas.width, canvas.height);
 	
-	
 	    let camM = cam.getMatrix();
 	
-	    let l = Math.sqrt(light.x * light.x + light.y * light.y + light.z * light.z);
-	    light.x /= l;
-	    light.y /= l;
-	    light.z /= l;
+	    lightCache = light.normalize();
 	
 	
-	    for (let gameObject of game.scene.all()) {
-	
-	        gameObject.transform.rotation = Quaternion.fromVector(new Vector3(0, 1, 0), Mathf.Angle.degreesToRadians(angle));
+	    for (let gameObject of game.scene.allGameObjects()) {
 	
 	        let gameObjectM = gameObject.transform.getMatrix();
 	        let mesh = gameObject.getComponent(Mesh);
@@ -201,12 +123,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            /** @type {Vertex} */
 	            let v3 = mesh.verteces[face[2]];
 	
-	            v1 = v1
-	                .multiplyOnMatrix(gameObjectM)
-	            v2 = v2
-	                .multiplyOnMatrix(gameObjectM)
-	            v3 = v3
-	                .multiplyOnMatrix(gameObjectM)
+	            v1 = v1.multiplyOnMatrix(gameObjectM)
+	            v2 = v2.multiplyOnMatrix(gameObjectM)
+	            v3 = v3.multiplyOnMatrix(gameObjectM)
 	
 	
 	            let normal = new Vector3();
@@ -232,36 +151,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	            normal.y /= l;
 	            normal.z /= l;
 	
-	            if (normal.z < 0) {
-	                v1 = v1.multiplyOnMatrix(camM)
-	                    .multiplyOnMatrix(projection)
-	                    .normal()
-	                v2 = v2.multiplyOnMatrix(camM)
-	                    .multiplyOnMatrix(projection)
-	                    .normal()
-	                v3 = v3.multiplyOnMatrix(camM)
-	                    .multiplyOnMatrix(projection)
-	                    .normal()
+	            v1 = v1.multiplyOnMatrix(camM)
+	                .multiplyOnMatrix(cam.projection)
+	                .normal()
+	            v2 = v2.multiplyOnMatrix(camM)
+	                .multiplyOnMatrix(cam.projection)
+	                .normal()
+	            v3 = v3.multiplyOnMatrix(camM)
+	                .multiplyOnMatrix(cam.projection)
+	                .normal()
 	
-	                if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < 0) {
-	                    continue;
-	                }
-	                if (v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v3.z < 0) {
-	                    continue;
-	                }
-	
-	                if (v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < 0) {
-	                    continue;
-	                }
-	
-	
-	
-	                v1 = v1.multiplyOnMatrix(screenMatrix);
-	                v2 = v2.multiplyOnMatrix(screenMatrix);
-	                v3 = v3.multiplyOnMatrix(screenMatrix);
-	
-	                _triangle(v1, v2, v3, bitmap, gameObject.color, normal);
+	            if (v1.x < -1 || v1.x > 1 || v1.y < -1 || v1.y > 1 || v1.z < 0) {
+	                continue;
 	            }
+	            if (v2.x < -1 || v2.x > 1 || v2.y < -1 || v2.y > 1 || v3.z < 0) {
+	                continue;
+	            }
+	
+	            if (v3.x < -1 || v3.x > 1 || v3.y < -1 || v3.y > 1 || v3.z < 0) {
+	                continue;
+	            }
+	
+	            v1 = v1.multiplyOnMatrix(screenMatrix);
+	            v2 = v2.multiplyOnMatrix(screenMatrix);
+	            v3 = v3.multiplyOnMatrix(screenMatrix);
+	
+	            _triangle(v1, v2, v3, bitmap, gameObject.color, normal);
 	        }
 	    }
 	
@@ -275,7 +190,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    let maxY = Math.min(screen.y - 1, Math.floor(Math.max(v1.y, Math.max(v2.y, v3.y))));
 	
 	    let triangleArea = (v1.y - v3.y) * (v2.x - v3.x) + (v2.y - v3.y) * (v3.x - v1.x);
-	    let dp = normal.x * light.x + normal.y * light.y + normal.z * light.z;
+	    let dp = normal.x * lightCache.x + normal.y * lightCache.y + normal.z * lightCache.z;
 	
 	    for (let y = minY; y <= maxY; y++) {
 	        for (let x = minX; x <= maxX; x++) {
@@ -288,22 +203,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                let index = y * screen.x + x;
 	
 	                if (zBuffer[index] < depth) {
-	
-	                    let norm = new Vertex(
-	                        v1.y * v3.z - v1.z * v3.y,
-	                        v1.z * v3.x - v1.x * v3.z,
-	                        v1.x * v3.y - v1.y * v3.x
-	                    )
-	
-	                    let cl = [];
-	
-	                    cl[0] = color[0] * dp;
-	                    cl[1] = color[1] * dp;
-	                    cl[2] = color[2] * dp;
-	                    cl[3] = color[3];
-	
 	                    zBuffer[index] = depth;
-	                    bitmap.draw(x, y, cl);
+	                    bitmap.set(x, y, RGBA.multiply(color, dp));
 	                }
 	            }
 	        }
@@ -318,6 +219,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	const { Vector3, Matrix4, Quaternion } = __webpack_require__(2);
 	const Canvas2d = __webpack_require__(8);
 	const Scene = __webpack_require__(9);
+	const Projection = __webpack_require__(16);
 	
 	class Camera {
 	    constructor() {
@@ -334,6 +236,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        this._scene = null;
 	        this._render = null;
+	
+	        this.projection = new Projection(this);
 	    }
 	
 	    /** @param {Scene} scene */
@@ -378,13 +282,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    rotationMatrix() {
 	        return this.rotation.toMatrix4();
-	
-	        return new Matrix4([
-	            [this._right.x, this._up.x, this._forward.x, 0],
-	            [this._right.y, this._up.y, this._forward.y, 0],
-	            [this._right.z, this._up.z, this._forward.z, 0],
-	            [0, 0, 0, 1],
-	        ])
 	    }
 	
 	    Render() {
@@ -590,7 +487,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @returns {Number}
 	     */
 	    static length(v) {
-	        return Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2) + Math.pow(v.z, 2))
+	        return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
 	    }
 	
 	    /**
@@ -768,8 +665,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	const Camera = __webpack_require__(1);
 	const Scene = __webpack_require__(9);
-	const Bitmap = __webpack_require__(13);
-	const Render = __webpack_require__(14);
+	const Bitmap = __webpack_require__(14);
+	const Render = __webpack_require__(15);
 	
 	
 	class Canvas2d extends Render {
@@ -812,16 +709,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	class Scene {
 	    constructor() {
 	        this.gameObjects = [];
+	        this.lights = [];
 	    }
 	
 	    /** @param {GameObject} gameObject */
-	    add(gameObject) {
+	    addGameObject(gameObject) {
 	        this.gameObjects.push(gameObject);
 	    }
 	
+	
 	    /** @returns {GameObject[]} */
-	    all() {
+	    allGameObjects() {
 	        return this.gameObjects;
+	    }
+	
+	    
+	    addLight(light) {
+	        this.lights.push(light);
+	    }
+	
+	    allLights() {
+	        return this.lights;
 	    }
 	}
 	
@@ -831,15 +739,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Component = __webpack_require__(11);
-	const Transform = __webpack_require__(12);
+	const RGBA = __webpack_require__(11);
+	const Component = __webpack_require__(12);
+	const Transform = __webpack_require__(13);
 	
 	class GameObject {
 	    constructor() {
 	        this.tag = null;
 	        this.components = new Map();
 	        this.transform = new Transform();
-	        this.color = [255, 255, 255, 255]
+	        this.shadow = true;
+	        this.color = new RGBA(255, 255, 255, 255);
 	    }
 	
 	    /**
@@ -889,6 +799,69 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ }),
 /* 11 */
+/***/ (function(module, exports) {
+
+	class RGBA {
+	    constructor(r, g, b, a) {
+	        this._r = r;
+	        this._g = g;
+	        this._b = b;
+	        this._a = a;
+	    }
+	
+	    get r() {
+	        return this._r;
+	    }
+	
+	    get g() {
+	        return this._g;
+	    }
+	
+	    get b() {
+	        return this._b;
+	    }
+	
+	    get a() {
+	        return this._a;
+	    }
+	
+	    set r(v) {
+	        this._r = v;
+	        return this;
+	    }
+	
+	    set g(v) {
+	        this._g = v;
+	        return this;
+	    }
+	
+	    set b(v) {
+	        this._b = v;
+	        return this;
+	    }
+	
+	    set a(v) {
+	        this._a = v;
+	        return this;
+	    }
+	
+	    multiply(v) {
+	        this.r *= v;
+	        this.g *= v;
+	        this.b *= v;
+	
+	        return this;
+	    }
+	
+	    static multiply(color, v) {
+	        return new RGBA(color.r * v, color.g * v, color.b * v, color.a)
+	    }
+	}
+	
+	module.exports = RGBA;
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	const GameObject = __webpack_require__(10);
@@ -920,7 +893,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Component;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	const { Vector3, Quaternion, Matrix4 } = __webpack_require__(2);
@@ -986,9 +959,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Transform;
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports) {
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
 
+	const RGBA = __webpack_require__(11);
 	class Bitmap {
 	    /** @param {ImageData} imageData */
 	    constructor(imageData) {
@@ -1003,19 +977,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    /**
 	     * 
-	     * @param point {Point2} 
-	     * @param color {Array};
+	     * @param x {Number} 
+	     * @param y {Number} 
+	     * @param color {RGBA};
 	     */
-	    draw(x, y, color) {
+	    set(x, y, color) {
 	        x = parseInt(x);
 	        y = parseInt(y);
 	
 	        var i = (x + y * this._w) * 4
 	        
-	        this.bitmap.data[i + 0] = color[0]
-	        this.bitmap.data[i + 1] = color[1]
-	        this.bitmap.data[i + 2] = color[2]
-	        this.bitmap.data[i + 3] = color[3]
+	        this.bitmap.data[i + 0] = color.r;
+	        this.bitmap.data[i + 1] = color.g;
+	        this.bitmap.data[i + 2] = color.b;
+	        this.bitmap.data[i + 3] = color.a;
 	    }
 	
 	    get() {
@@ -1026,7 +1001,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Bitmap;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 	class Render {
@@ -1038,7 +1013,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Render;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	const { Matrix4 } = __webpack_require__(2);
@@ -1050,33 +1025,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Camera} camera 
 	     */
 	    constructor(camera) {
-	        let near = 0.1;
-	        let far = 100;
+	        let near = camera.near || 0.1;
+	        let far = camera.far || 100;
 	
-	        let m00 = 1 / Math.tan(90 * 0.5 * Math.PI / 180);
+	        let m00 = document.body.clientHeight / document.body.clientWidth;
 	        let m11 = 1 / Math.tan(90 * 0.5 * Math.PI / 180);
 	        let m22 = -far / (far - near);
 	        let m32 = -far * near / (far - near);
 	
-	        let n = 0.1;
-	        let f = 100;
-	        let r = -document.body.clientWidth / document.body.clientHeight;
-	        let l = document.body.clientWidth / document.body.clientHeight;
-	        let t = -document.body.clientHeight / document.body.clientWidth;
-	        let b = document.body.clientHeight / document.body.clientWidth;
-	
 	        return new Matrix4([
 	            [m00, 0, 0, 0],
 	            [0, m11, 0, 0],
-	            [0, 0, m22, -1],
+	            [0, 0, m22, 1],
 	            [0, 0, m32, 0],
-	        ])
-	
-	        return new Matrix4([
-	            [(2 * n) / (r - l), 0, (r + l) / (r - l), 0],
-	            [0, (2 * n) / (t - b), (t + b) / (t - b), 0],
-	            [0, 0, (f + n) / (n - f), (2 * f * n) / (n - f)],
-	            [0, 0, -1, 0]
 	        ])
 	    }
 	}
@@ -1084,7 +1045,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Projection;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	const { Matrix4 } = __webpack_require__(2);
@@ -1096,15 +1057,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	     * @param {Camera} camera 
 	     */
 	    constructor(camera) {
-	
-	        /**
-	         * 
-	         * [HW,0,0,0]
-	         * [0, -HH, 0,0]
-	         * [0,0,1,0]
-	         * [HW,HH, 0 1]
-	         */
-	
 	        return new Matrix4([
 	            [document.body.clientWidth / 2, 0, 0, document.body.clientWidth / 2],
 	            [0, document.body.clientHeight / 2, 0, document.body.clientHeight / 2],
@@ -1118,11 +1070,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Render = __webpack_require__(14);
-	const Component = __webpack_require__(11);
+	const Render = __webpack_require__(15);
+	const Component = __webpack_require__(12);
 	
 	class Mesh extends Component {
 	    constructor() {
@@ -1162,57 +1114,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Mesh;
 
 /***/ }),
-/* 18 */,
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Mesh = __webpack_require__(17);
-	const Vertex = __webpack_require__(7);
-	const GameObject = __webpack_require__(10);
-	
-	class Cube extends GameObject {
-	    constructor() {
-	        super();
-	        /** @type {Mesh} */
-	        let mesh = this.addComponent(Mesh);
-	
-	        mesh.verteces = [
-	            new Vertex(-1.000000, -1.000000, 1.000000),
-	            new Vertex(-1.000000, 1.000000, 1.000000),
-	            new Vertex(-1.000000, -1.000000, -1.000000),
-	            new Vertex(-1.000000, 1.000000, -1.000000),
-	            new Vertex(1.000000, -1.000000, 1.000000),
-	            new Vertex(1.000000, 1.000000, 1.000000),
-	            new Vertex(1.000000, -1.000000, -1.000000),
-	            new Vertex(1.000000, 1.000000, -1.000000),
-	        ]
-	
-	        mesh.faces = [
-	            [1, 2, 0],
-	            [3, 6, 2],
-	            [7, 4, 6],
-	            [5, 0, 4],
-	            [6, 0, 2],
-	            [3, 5, 7],
-	            [1, 3, 2],
-	            [3, 7, 6],
-	            [7, 5, 4],
-	            [5, 1, 0],
-	            [6, 4, 0],
-	            [3, 1, 5],
-	        ]
-	    }
-	}
-	
-	module.exports = Cube;
-
-/***/ }),
-/* 20 */,
-/* 21 */,
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	const Mesh = __webpack_require__(17);
+	const Mesh = __webpack_require__(18);
 	const { Vertex } = __webpack_require__(2);
 	const GameObject = __webpack_require__(10);
 	
@@ -2675,10 +2580,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Sphere;
 
 /***/ }),
-/* 23 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Mesh = __webpack_require__(17);
+	const Mesh = __webpack_require__(18);
 	const { Vertex } = __webpack_require__(2);
 	const GameObject = __webpack_require__(10);
 	
@@ -4174,10 +4079,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Suzanne;
 
 /***/ }),
-/* 24 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	const Behaviour = __webpack_require__(25);
+	const Behaviour = __webpack_require__(22);
 	const Camera = __webpack_require__(1);
 	const Scene = __webpack_require__(9);
 	
@@ -4240,7 +4145,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = iso2d;
 
 /***/ }),
-/* 25 */
+/* 22 */
 /***/ (function(module, exports) {
 
 	class Behaviour {

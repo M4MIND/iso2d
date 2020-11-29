@@ -63,7 +63,7 @@ class Vector3 {
      * @returns {Number}
      */
     static length(v) {
-        return Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2) + Math.pow(v.z, 2))
+        return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
     }
 
     /**
