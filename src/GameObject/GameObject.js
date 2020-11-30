@@ -31,6 +31,13 @@ class GameObject {
         return this.components.get(component.name);
     }
 
+    /**
+     * @returns {Component[]}
+     */
+    allComponents() {
+        return this.components.values();
+    }
+
     onStart() {
 
     }

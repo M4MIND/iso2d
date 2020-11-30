@@ -30,9 +30,6 @@ class Mesh extends Component {
 
     /** @param {Render} render */
     onDraw(render) {
-        for (let ver of this.verteces) {
-            render.drawPoint(ver.x + this.gameObject.position.x, ver.y + this.gameObject.position.y, [0, 0, 0, 255])
-        }
     }
 }
 

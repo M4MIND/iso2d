@@ -1,11 +1,10 @@
 const Mathf = require("../Mathf/Mathf");
 const { Vector3, Matrix4, Quaternion } = require("../Mathf/Mathf");
-const Canvas2d = require("../Render/Canvas2d");
-const Scene = require("../Scene/Scene");
 const Projection = require("./Projection");
 
 class Camera {
-    constructor() {
+    constructor(core) {
+        this._core = core;
         this._position = new Vector3(0, 0, 0, 1);
         this._forward = new Vector3(0, 0, 1, 1);
         this._up = new Vector3(0, 1, 0, 1);
@@ -17,29 +16,7 @@ class Camera {
 
         this.rotation = Quaternion.fromVector(new Vector3(0, 0, 0), 0);
 
-        this._scene = null;
-        this._render = null;
-
         this.projection = new Projection(this);
-    }
-
-    /** @param {Scene} scene */
-    set scene(scene) {
-        this._scene = scene;
-    }
-
-    /** @returns {Scene} */
-    get scene() {
-        return this._scene;
-    }
-
-    get render() {
-        return this._render;
-    }
-
-    /** @param {Canvas2d} */
-    set render(render) {
-        this._render = render;
     }
 
     get position() {
@@ -65,28 +42,6 @@ class Camera {
 
     rotationMatrix() {
         return this.rotation.toMatrix4();
-    }
-
-    Render() {
-        this.render.clear();
-
-        /** Пользовательский скрипт */
-        for (let obj of this.scene.all()) {
-            obj.update();
-        }
-
-        /** Вызываем методы компонетов */
-        for (let obj of this.scene.all()) {
-            obj.onUpdate();
-        }
-
-        this.render.startDraw();
-
-        for (let obj of this.scene.all()) {
-            obj.onDraw(this.render);
-        }
-
-        this.render.render();
     }
 }
 

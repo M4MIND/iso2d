@@ -1,11 +1,16 @@
 const Behaviour = require("./Behaviour/Behaviour");
 const Camera = require("./Camera/Camera");
+const Render = require("./Render/Render");
 const Scene = require("./Scene/Scene");
+const Screen = require("./System/Screen");
 
 class iso2d {
-    constructor(camera, scene) {
-        this._camera = camera || new Camera();
-        this._scene = scene || new Scene();
+    constructor(canvas, camera, scene) {
+        this._canvas = canvas || null;
+        this._scene = scene || new Scene(this);
+        this._camera = camera || new Camera(this);
+        this._screeen = screen || new Screen(this);
+        this._render = new Render(this);
         this._behaviours = [];
     }
 
@@ -27,6 +32,11 @@ class iso2d {
     /** @param {Scene} scene */
     set scene(scene) {
         this._scene = scene;
+    }
+
+    /** @returns {Render} */
+    get render() {
+        return this._render;
     }
 
     /** @param {Behaviour} behaviour */
@@ -51,7 +61,14 @@ class iso2d {
     }
 
     tick() {
+        for (let gm of this.scene.gameObjects) {
+            for (let component of gm.allComponents()) {
+                component.onUpdate(this);
+                component.onDraw(this);
+            };
+        }
 
+        this.render.render();
         window.requestAnimationFrame(() => {
             this.tick();
         })
